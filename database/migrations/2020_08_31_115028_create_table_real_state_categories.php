@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Schema;
 class CreateTableRealStateCategories extends Migration
 {
     /**
-     * Run the migrations.
+     *Run the migrations.
      *
      * @return void
      */
@@ -18,7 +18,7 @@ class CreateTableRealStateCategories extends Migration
             $table->unsignedBigInteger('category_id');
 
             $table->foreign('real_state_id')->references('id')->on('real_state');
-            $table->foreign('categorry_id')->references('id')->on('categories');
+            $table->foreign('category_id')->references('id')->on('categories');
         });
     }
 
