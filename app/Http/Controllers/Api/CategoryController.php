@@ -97,7 +97,7 @@ class CategoryController extends Controller
             ]);
         } catch (\Exception $e) {
             $message = new ApiMessages($e->getMessage(), $data);
-            return response()->json($message->getMessage(), 401);
+            return response()->json($message->getMessage(), 404);
         }
     }
 
@@ -118,6 +118,17 @@ class CategoryController extends Controller
 
             $message = new ApiMessages($e->getMessage());
             return response()->json($message->getMessage());
+        }
+    }
+
+    public function realStates($id)
+    {
+        try {
+            $data = $this->category->with('realStates')->findOrFail($id);
+            return response()->json($data, 200);
+        } catch (\Exception $e) {
+            $messages = new ApiMessages($e->getMessage());
+            return response()->json($messages->getMessage(), 404);
         }
     }
 }

@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\UserRequest;
 use App\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
@@ -24,7 +25,7 @@ class UserController extends Controller
     public function index()
     {
         //
-        $user = $this->user->paginate(10);
+        $user = $this->user->with('profile')->paginate(10);
         return response()->json($user, 200);
     }
 
@@ -34,23 +35,42 @@ class UserController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(UserRequest $request)
+    public function store(Request $request)
     {
-        //
+        $id = $request->segment(3);
         $data = $request->all();
+
+        $validator = Validator::make($data, [
+            'email' => ['required', 'string', 'email', "unique:users,email,{$id},id", 'max:255'],
+            'name' => ['required', 'string', 'max:255'],
+            'phone' => ['required'],
+            'mobile_phone' => ['required'],
+        ]);
+
         try {
+
+            if ($validator->fails()) {
+                $message = new ApiMessages($validator->errors());
+                return response()->json($message->getMessage(), 401);
+            }
 
             $data['password'] = bcrypt($data['password']);
 
             $user = $this->user->create($data);
+
+            $user->profile()->create([
+                'phone' => $data['phone'],
+                'mobile_phone' => $data['mobile_phone'],
+            ]);
+
             return response()->json([
                 'data' => [
                     'msg' => 'usuário cadastrado com sucesso'
                 ]
-            ]);
+            ], 201);
         } catch (\Exception $e) {
             $message = new ApiMessages($e->getMessage(), $data);
-            return response()->json($message->getMessage());
+            return response()->json($message->getMessage(), 401);
         }
     }
 
@@ -65,7 +85,8 @@ class UserController extends Controller
         //
         try {
 
-            $user = $this->user->findOrFail($id);
+            $user = $this->user->with('profile')->findOrFail($id);
+            $user->profile->social_networks = unserialize($user->profile->social_networks);
 
             return response()->json(['data' => $user], 200);
         } catch (\Exception $e) {
@@ -83,10 +104,20 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(UserRequest $request, $id)
+    public function update(Request $request, $id)
     {
 
         $data = $request->all();
+        $validator = Validator::make($data, [
+            'email' => ['string', 'email', 'max:255'],
+            'name' => ['string', 'max:255']
+        ]);
+
+        if ($validator->fails()) {
+            $message = new ApiMessages($validator->errors());
+            return response()->json($message->getMessage(), 401);
+        }
+
         if ($request->has('password') && trim($request->get('password'))) {
             $data['password'] = bcrypt($data['password']);
         }
@@ -94,7 +125,13 @@ class UserController extends Controller
         try {
             $user = $this->user->findOrFail($id);
 
+
+            $profile = $data['profile'];
+            $profile['social_networks'] = serialize($profile['social_networks']);
+
             $user->update($data);
+
+            $user->profile()->update($profile);
 
             return response()->json([
                 'data' => [
@@ -103,7 +140,7 @@ class UserController extends Controller
             ]);
         } catch (\Exception $e) {
             $message = new ApiMessages($e->getMessage(), $data);
-            return response()->json($message->getMessage());
+            return response()->json($message->getMessage(), 404);
         }
     }
 
