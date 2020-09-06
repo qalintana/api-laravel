@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Api\ApiMessages;
 use App\Category;
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Http\Requests\CategoryRequest;
 
 class CategoryController extends Controller
 {
@@ -33,7 +33,7 @@ class CategoryController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(CategoryRequest $request)
     {
         //
         $data = $request->all();
@@ -48,7 +48,7 @@ class CategoryController extends Controller
             ]);
         } catch (\Exception $e) {
             $message = new ApiMessages($e->getMessage(), $data);
-            return response()->json($message->getMessage());
+            return response()->json($message->getMessage(), 401);
         }
     }
 
@@ -81,7 +81,7 @@ class CategoryController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(CategoryRequest $request, $id)
     {
         $data = $request->all();
 
@@ -92,12 +92,12 @@ class CategoryController extends Controller
 
             return response()->json([
                 'data' => [
-                    'msg' => 'usuário atualizado com sucesso'
+                    'msg' => 'categoria atualizada com sucesso'
                 ]
             ]);
         } catch (\Exception $e) {
             $message = new ApiMessages($e->getMessage(), $data);
-            return response()->json($message->getMessage());
+            return response()->json($message->getMessage(), 401);
         }
     }
 

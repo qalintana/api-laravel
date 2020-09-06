@@ -29,11 +29,6 @@ Route::prefix('v1')->namespace('Api')->group(function () {
     });
 
     Route::name('users.')->group(function () {
-        // Route::resource('users', 'UserController');
-        Route::patch('users/{id}', 'UserController@update');
-        Route::post('users', 'UserController@store');
-        Route::get('users/{id}', 'UserController@show');
-        Route::delete('users/{id}', 'UserController@destroy');
-        Route::get('users', 'UserController@index');
+        Route::resource('users', 'UserController');
     });
 });
