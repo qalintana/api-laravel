@@ -18,9 +18,22 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::prefix('v1')->group(function () {
+Route::prefix('v1')->namespace('Api')->group(function () {
 
-    Route::namespace('Api')->name('realstate.')->group(function () {
+    Route::name('realstate.')->group(function () {
         Route::resource('real-states', 'RealStateController');
+    });
+
+    Route::name('category.')->group(function () {
+        Route::resource('categories', 'CategoryController');
+    });
+
+    Route::name('users.')->group(function () {
+        // Route::resource('users', 'UserController');
+        Route::patch('users/{id}', 'UserController@update');
+        Route::post('users', 'UserController@store');
+        Route::get('users/{id}', 'UserController@show');
+        Route::delete('users/{id}', 'UserController@destroy');
+        Route::get('users', 'UserController@index');
     });
 });
