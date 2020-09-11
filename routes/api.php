@@ -32,4 +32,9 @@ Route::prefix('v1')->namespace('Api')->group(function () {
     Route::name('users.')->group(function () {
         Route::resource('users', 'UserController');
     });
+
+    Route::name('photos.')->prefix('photos')->group(function () {
+        Route::delete('/{id}', 'RealStatePhotoController@removePhoto')->name('delete');
+        Route::put('/set-thumb/{photoId}/{realStateId}', 'RealStatePhotoController@setThumb')->name('update');
+    });
 });

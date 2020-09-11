@@ -39,8 +39,7 @@ class CategoryController extends Controller
         $data = $request->all();
         try {
 
-
-            $category = $this->category->create($data);
+            $this->category->create($data);
             return response()->json([
                 'data' => [
                     'msg' => 'categoria cadastrada com sucesso'
