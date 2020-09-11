@@ -27,11 +27,19 @@ class RealStateController extends Controller
     public function store(RealStateRequest $request)
     {
         $data = $request->all();
-        try {
 
+        $images = $request->file('images');
+
+        try {
             $realState = $this->realState->create($data);
+
             if (isset($data['categories']) && count($data['categories'])) {
                 $realState->categories()->attach($data['categories']);
+            }
+
+            if ($images) {
+                foreach ($images as $image) {
+                }
             }
 
             return response()->json([
